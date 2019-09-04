@@ -21,6 +21,7 @@ env.Append(LIBPATH = [
 env.Append(LIBS = ['protobuf'])
 env.Append(LIBS = ['brpc'])
 env.Append(LIBS = ['libserving_proto'])
+env.Append(LIBS = ['opencv_highgui', 'opencv_core', 'opencv_imgproc'])
 
 env.Append(RPATH = [
 	'./libs',
@@ -85,6 +86,7 @@ env.Program(
     target = "main",
     source = [
         "main.cc",
+        "client.cc",
 #        "service.cc",
 #        "base_task.cc",
 #        "surface_detect.cc",

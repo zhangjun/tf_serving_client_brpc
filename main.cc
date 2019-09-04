@@ -7,23 +7,16 @@
 *******************************************/
 #include <iostream>
 #include <string>
-
 #include <fstream>
 
-#include <brpc/channel.h>
-#include "tensorflow_serving/apis/prediction_service.pb.h"
-#include "tensorflow/core/framework/tensor.pb.h"
+#include <opencv2/opencv.hpp>
 
 
-using tensorflow::serving::PredictRequest;
-using tensorflow::serving::PredictResponse;
-using tensorflow::serving::PredictionService;
-
-typedef google::protobuf::Map<std::string, tensorflow::TensorProto> MapProto;
-
+#include "client.h"
 
 DEFINE_string(protocol, "h2:grpc", "Protocol type");
-DEFINE_string(server, "10.144.97.105:11000", "IP Address of server");
+//DEFINE_string(server, "10.144.97.105:11000", "IP Address of server");
+DEFINE_string(server, "10.144.120.23:11000", "IP Address of server");
 DEFINE_string(load_balancer, "", "The algorithm for load balancing");
 DEFINE_int32(timeout_ms, 100, "RPC timeout in milliseconds");
 DEFINE_int32(max_retry, 3, "Max retries(not including the first RPC)"); 
@@ -46,19 +39,22 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    std::string model_name = "surface_detect";
+    //std::string model_name = "surface_detect";
+    //std::string model_signature_name = "serving_default";
+
+    //std::string model_name = "bottle_detect";
+    //std::string model_signature_name = "detection_signature";
+
+    std::string model_name = "edge_detect";
     std::string model_signature_name = "serving_default";
 
     std::string file_path = "cat.jpg";
+    //std::string file_path = "bottle.jpg";
 
-    tensorflow::serving::PredictionService_Stub stub(&channel);
-    
-    brpc::Controller cntl;
-    PredictRequest request;
-    PredictResponse response;
 
-    request.mutable_model_spec() -> set_name(model_name);
-    request.mutable_model_spec() -> set_signature_name(model_signature_name);
+    ServingTask* task = new ServingTask(&channel);
+
+    task -> Init();
 
     std::ifstream img_file(file_path, std::ios::binary);
     std::filebuf* pbuf = img_file.rdbuf();
@@ -70,25 +66,29 @@ int main(int argc, char* argv[]) {
 
     img_file.close();
 
-    tensorflow::TensorProto proto;
-    proto.set_dtype(tensorflow::DataType::DT_STRING);
-    proto.add_string_val(image, file_size);
 
-    proto.mutable_tensor_shape() -> add_dim() -> set_size(1);
-
-    MapProto& inputs = *request.mutable_inputs();
-    inputs["input"] = proto;
-
-    stub.Predict(&cntl, &request, &response, NULL);
-
-    std::cout << "aaa" << std::endl;
-
-    if(cntl.Failed()) {
-        std::cout << "call error" << std::endl;
-        LOG(WARNING) << cntl.ErrorText();
-    }
+    // cv mat
+    //cv::Mat img = cv::imread(file_path.c_str());
+    //std::vector<uchar> data_encode;
+    //imencode(".jpg", img, data_encode);
+    //unsigned char* image = &data_encode.at(0);
+    //auto file_size = data_encode.size();
 
 
+    //int idx = 0;
+    //float prob = 0.0;
+    //task -> Process(model_name, model_signature_name, image, file_size, idx, prob); 
+
+    // bottle detect
+    //std::vector<float> bbox;
+    //task -> Process(model_name, model_signature_name, image, file_size, bbox); 
+
+    // edge detect
+    std::vector<float> detect_fea;
+    task -> Process(model_name, model_signature_name, image, file_size, 10, 10, detect_fea); 
+
+
+    task -> ShutDown();
 
 
     return 0;
