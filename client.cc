@@ -13,7 +13,7 @@ int ServingClient::Predict(const PredictRequest& request, PredictResponse& respo
 
     stub_ -> Predict(&cntl, &request, &response, NULL);
     if(cntl.Failed()) {
-       LOG(INFO) << "Predict success, latecy: " << cntl.latency_us() << " us";
+        LOG(INFO) << "Predict success, latecy: " << cntl.latency_us() << " us";
     } else {
         LOG(WARNING) << cntl.ErrorText();
         return -1;
