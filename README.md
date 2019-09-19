@@ -5,6 +5,6 @@ Lightweight TensorFlow Serving client using brpc.
 
 # deps
 
-protobuf
+[protobuf](https://github.com/protocolbuffers/protobuf)
 
-brpc
+[brpc](https://github.com/apache/incubator-brpc)
